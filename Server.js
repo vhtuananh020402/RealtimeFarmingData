@@ -1,16 +1,21 @@
 const express = require("express");
 const { Pool } = require("pg");
 const WebSocket = require("ws");
+const fs = require('fs');
+
+let rawJSONdata = fs.readFileSync('postgresDBinfo.json');
+let DBLoginInfo = JSON.parse(rawJSONdata);
+// console.log(DBLoginInfo.user);
 
 const app = express();
 const port = 3000;
 
 const pool = new Pool({
-  user: "postgres",
-  host: "localhost",
-  database: "farm2",
-  password: "020402",
-  port: 5432,
+  user: DBLoginInfo.user,
+  host: DBLoginInfo.host,
+  database: DBLoginInfo.database,
+  password: DBLoginInfo.password,
+  port: DBLoginInfo.port,
 });
 
 const wss = new WebSocket.Server({ noServer: true });

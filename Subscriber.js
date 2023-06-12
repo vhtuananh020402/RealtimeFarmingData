@@ -12,12 +12,16 @@ var lightSwitch = false;
 var waterPump = false;
 var fanSwitch = false;
 
+let rawJSONdata = fs.readFileSync('postgresDBinfo.json');
+let DBLoginInfo = JSON.parse(rawJSONdata);
+// console.log(DBLoginInfo.user);
+
 const credentials = {
-    user: "postgres",
-    host: "localhost",
-    database: "farm2",
-    password: "020402",
-    port: 5432,
+    user: DBLoginInfo.user,
+    host: DBLoginInfo.host,
+    database: DBLoginInfo.database,
+    password: DBLoginInfo.password,
+    port: DBLoginInfo.port,
 }
 
 const DBClient = new Client(credentials);
@@ -78,9 +82,9 @@ DBClient.connect()
                                 .then(result => {
                                     if (result) {
                                         console.log('Data inserted');
-                                        console.log("Turn on the light? --> " + lightConstraint(receivedLuminosity, lightSwitch));
-                                        console.log("Turn on the water pump? --> " + receivedSoilHumidity + "  --->  " + soil_humidityConstraint(receivedSoilHumidity, waterPump));
-                                        console.log("Turn on the fan? --> " + temperatureConstraint(receivedTemperature, fanSwitch));
+                                        console.log("Turn on the light?         --> " + lightConstraint(receivedLuminosity, lightSwitch)         + "    [luminosity     : " + receivedLuminosity + "]");
+                                        console.log("Turn on the water pump?    --> " + soil_humidityConstraint(receivedSoilHumidity, waterPump) + "    [soil_humidity  : " + receivedSoilHumidity + "]" );
+                                        console.log("Turn on the fan?           --> " + temperatureConstraint(receivedTemperature, fanSwitch)    + "    [temperature    : " + receivedTemperature + "]");
                                     }
                                 });
                             
