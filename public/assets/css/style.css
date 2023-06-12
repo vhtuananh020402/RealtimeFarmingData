@@ -1,0 +1,210 @@
+body {
+    background-color: white;
+    margin-right: auto;
+    margin-left:  auto;
+    max-width: 960px;
+    padding-right: 10px;
+    padding-left:  10px;
+}
+
+h2 {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* Create two equal columns that floats next to each other */
+.column1 {
+    float: left;
+    width: 30%;
+    padding: 20px;
+    align-items: center;
+    background-color: rgb(234, 226, 223);
+    border-radius: 10px;
+    border-style: solid;
+    margin: 10px;
+
+    /* center items in a div */
+    text-align: center;
+}
+
+.column1:hover {
+  opacity: 70%;
+}
+
+.column2 {
+    float: left;
+    width: 30%;
+    padding: 20px;
+    align-items: center;
+    background-color: rgb(234, 226, 223);
+    border-radius: 10px;
+    border-style: solid;
+    margin: 10px;
+
+    /* center items in a div */
+    text-align: center;
+}
+
+.column2:hover {
+    opacity: 70%;
+  }
+
+.column3 {
+    float: left;
+    width: 30%;
+    padding: 20px;
+    align-items: center;
+    background-color: rgb(234, 226, 223);
+    border-radius: 10px;
+    border-style: solid;
+    margin: 10px;
+
+    /* center items in a div */
+    text-align: center;
+}
+
+.column3:hover {
+    opacity: 70%;
+  }
+
+.column1 h2, p {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+.column2 h2, p {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+.column3 h2, p {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+/* Clear floats after the columns */
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.center2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loader {
+    border: 12px solid #f3f3f3; /* Light gray */
+    border-top: 12px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    animation: spin 1s linear infinite;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+
+  .blue-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .blue-table th,
+  .blue-table td {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #e6e6e6;
+  }
+  
+  .blue-table th {
+    background-color: #3498db;
+    color: #ffffff;
+  }
+  
+  .blue-table tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  .blue-table tbody tr:hover {
+    background-color: #e6f0ff;
+  }
+
+  .blue-button {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    color: #ffffff;
+    background-color: #3498db;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 5px;
+  }
+  
+  .blue-button:hover {
+    background-color: #2580b3;
+  }
+  
+  .blue-button:active {
+    background-color: #1e6a98;
+  }
+
+  .blue-button:disabled {
+    opacity: 20%;
+  }
+
+
+.button-with-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    /* background-color: transparent; */
+    cursor: pointer;
+    padding: 10px;
+    /* margin: 10px; */
+    border-radius: 5px;
+    /* background-color: #3498db; */
+    /* color: white; */
+  }
+  
+  .button-with-image img {
+    width: 20px; /* Adjust the width and height as needed */
+    height: 20px;
+    /* margin-right: 5px; ---> uncomment if the button has text*/ 
+  }
+
+  .button-with-image .img_inside {
+    width: 20px; /* Adjust the width and height as needed */
+    height: 20px;
+    margin: 8px;
+  }
+  
+  .button-with-image span {
+    font-size: 14px; /* Adjust the font size as needed */
+  }
+
+#export-csv {
+    border-radius: 10px;
+    margin: 10px;
+    border-style: solid;
+}

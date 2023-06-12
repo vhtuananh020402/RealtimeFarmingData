@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Farming System Dashboard</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script>
+    $(document).ready(function() {
+      const tableBody = $('#data-table tbody');
+      const prevPageButton = $('#prev-page');
+      const nextPageButton = $('#next-page');
+      const firstPageButton = $('#first-page');
+      const lastPage = $('#last-page-info');
+      const lastPageButton = $('#last-page');
+      const currentPageElement = $('#current-page');
+      let currentPage = 1;
+      const resultsPerPage = 10;
+      let socket;
+      let averageValues = {
+        avg_temperature: 0,
+        avg_luminosity: 0,
+        avg_soil_humidity: 0
+      };
+      let numberOfPages;
+
+      let totalData = []; // Variable to store all data from all pages
+
+      function updateTable(data) {
+        const options = { timeZone: 'Asia/Bangkok' };
+        tableBody.empty();
+
+        data.forEach((row) => {
+          const tr = $('<tr>');
+
+          const dateString = row.timestamp;
+          const date = new Date(dateString);
+
+          // Convert to UTC+7
+          date.setHours(date.getHours() + 7);
+
+          // Format date as 'YYYY-MM-DD'
+          const formattedDate = date.toLocaleString('en-US', { timeZone: 'UTC' }).split(',')[0];
+
+          // Format time as 'HH:mm:ss'
+          const formattedTime = date.toLocaleString('en-US', { timeZone: 'UTC', timeStyle: 'medium' });
+          
+          tr.append($('<td>').text(formattedDate + ' ' + formattedTime));
+          tr.append($('<td>').text(row.temperature));
+          tr.append($('<td>').text(row.luminosity));
+          tr.append($('<td>').text(row.air_humidity));
+          tr.append($('<td>').text(row.soil_humidity));
+
+          tableBody.append(tr);
+        });
+
+        updatePaginationButtons(data);
+      }
+
+      function fetchAndUpdateTable() {
+        const startIndex = (currentPage - 1) * resultsPerPage;
+
+        $.ajax({
+          url: `/getData?startIndex=${startIndex}&resultsPerPage=${resultsPerPage}`,
+          type: "GET",
+          success: function(data) {
+            updateTable(data);
+          },
+          error: function(error) {
+            console.error(error);
+          }
+        });
+      }
+
+      function connectWebSocket() {
+        socket = new WebSocket('ws://localhost:3000');
+        socket.onmessage = function(event) {
+          const eventData = JSON.parse(event.data);
+          if (eventData.event === 'data') {
+            const rowData = eventData.data;
+            prependRowToTable(rowData);
+          } else if (eventData.event === 'average') {
+            updateAverageValues(eventData.data);
+          } else if (eventData.event === 'allData') {
+            totalData = eventData.data; // Update totalData with the fetched data
+            // console.log(totalData) --> for debug all data
+          }
+        };
+      }
+
+      function prependRowToTable(row) {
+        const tr = $('<tr>');
+        tr.append($('<td>').text(row.id));
+        tr.append($('<td>').text(row.name));
+        tr.append($('<td>').text(row.timestamp));
+        tableBody.prepend(tr);
+
+        updatePaginationButtons([row]);
+      }
+
+      function updatePaginationButtons(data) {
+        if (data.length === 0) {
+          prevPageButton.prop('disabled', true);
+          nextPageButton.prop('disabled', true);
+        } else if (data.length < resultsPerPage) {
+          prevPageButton.prop('disabled', currentPage === 1);
+          nextPageButton.prop('disabled', true);
+        } else {
+          prevPageButton.prop('disabled', currentPage === 1);
+          nextPageButton.prop('disabled', false);
+        }
+      }
+
+      // lastPage.text(numberOfPages)
+
+      function startUpdateInterval() {
+        setInterval(function() {
+          fetchAndUpdateTable();
+          lastPage.text(numberOfPages)
+        }, 3000); // Update every 3 seconds
+      }
+
+      function stopUpdateInterval() {
+        clearInterval(updateInterval);
+      }
+
+      function navigateToPage(page) {
+        currentPage = page;
+        currentPageElement.text(currentPage);
+        fetchAndUpdateTable();
+      }
+
+      $('#prev-page').on('click', function() {
+        if (currentPage > 1) {
+          navigateToPage(currentPage - 1);
+        }
+      });
+
+      $('#next-page').on('click', function() {
+        currentPage++;
+        currentPageElement.text(currentPage);
+        fetchAndUpdateTable();
+      });
+
+      $('#first-page').on('click', function() {
+        navigateToPage(1);
+      });
+
+      $('#last-page').on('click', function() {
+        navigateToPage(numberOfPages);
+      });
+
+      $('#export-csv').on('click', function() {
+        exportTableToCSV();
+      });
+
+      function exportTableToCSV() {
+        const csvData = [];
+        const tableRows = $('#data-table tbody tr');
+
+        // console.log(tableRows);
+
+        csvData.push('timestamp,temperature,luminosity,air_humidity,soil_humidity');
+
+        // tableRows.each(function() {
+        //   const rowData = [];
+        //   $(this).find('td').each(function() {
+        //     rowData.push($(this).text());
+        //   });
+        //   csvData.push(rowData.join(','));
+        // });
+
+        console.log(totalData);
+
+        totalData.forEach(element => {
+          console.log(element);
+          const rowData = [];
+
+          const dateString = element.timestamp;
+          const date = new Date(dateString);
+
+          // Convert to UTC+7
+          date.setHours(date.getHours() + 7);
+
+          // Format date as 'YYYY-MM-DD'
+          const formattedDate = date.toLocaleString('en-US', { timeZone: 'UTC' }).split(',')[0];
+
+          // Format time as 'HH:mm:ss'
+          const formattedTime = date.toLocaleString('en-US', { timeZone: 'UTC', timeStyle: 'medium' });
+
+          rowData.push(formattedDate + ' ' + formattedTime + ',' + element.temperature + ',' + element.luminosity + ',' + element.air_humidity + ',' + element.soil_humidity);
+          csvData.push(rowData);
+        });
+
+        const csvContent = "data:text/csv;charset=utf-8," + csvData.join('\n');
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "table_data.csv");
+        document.body.appendChild(link); // Required for Firefox
+        link.click();
+      }
+
+      function updateAverageValues(data) {
+        averageValues = data;
+        $('#average-temperature').text(parseFloat(averageValues.avg_temperature).toFixed(2));
+        $('#average-luminosity').text(parseFloat(averageValues.avg_luminosity).toFixed(2));
+        $('#average-soil-humidity').text(parseFloat(averageValues.avg_soil_humidity).toFixed(2));
+
+        // lastPage.text(numberOfPages)
+        console.log("the number of rows of all data is", averageValues.number_of_rows);
+
+        numberOfPages = Math.ceil(averageValues.number_of_rows / resultsPerPage);
+
+        if (numberOfPages == 0) {
+          numberOfPages = 1;
+        }
+      }
+
+      connectWebSocket();
+      startUpdateInterval();
+      fetchAndUpdateTable();
+    });
+  </script>
+</head>
+<body>
+  <div class="center2">
+    <div class="loader"></div>
+  </div>
+  
+
+  <div id="content" style="display: none;">
+  <!-- Your content goes here -->
+  <h2>Environment Latest</h2>
+  <div class="row">
+    <div class="column1">
+      <img src="assets/img/temperature (1).png" alt="" style="width: 30%;">
+      <p>Temperature: <span id="average-temperature">0</span>°C</p>
+    </div>
+
+    <div class="column2">
+      <img src="assets/img/light.png" alt="" style="width: 30%;">
+      <p>Luminosity: <span id="average-luminosity">0</span> lux</p>
+    </div>
+
+    <div class="column3">
+      <img src="assets/img/drop.png" alt="" style="width: 30%;">
+      <p>Soil Humidity: <span id="average-soil-humidity">0</span>%</p>
+    </div>
+  </div>
+
+  <hr>
+
+  <h2>Real-time Environment Data</h2>
+  <button id="export-csv" class="button-with-image">
+    <span>Export to CSV</span>
+    <img class="img_inside" src="assets/img/csv2.png" alt="Button Image">
+
+
+  </button>
+
+  <div class="center2 table-background">
+    <table id="data-table" class="blue-table">
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>Temperature</th>
+          <th>Luminosity</th>
+          <th>Air Humidity</th>
+          <th>Soil Humidity</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  
+  <div class="center2">
+    <button id="first-page" class="blue-button button-with-image">
+      <img src="assets/img/leftforward.png" alt="Button Image">
+      <!-- <span>First Page</span> -->
+    </button>
+
+    <button id="prev-page" class="blue-button button-with-image" disabled> 
+      <img src="assets/img/rewind.png" alt="Button Image">
+      <!-- <span>Previous Page</span> -->
+    </button>
+
+    <p>Page: <span id="current-page">1</span> / <span id="last-page-info"></span> </p>
+
+    <button id="next-page" class="blue-button button-with-image">
+      <img src="assets/img/fastforward.png" alt="Button Image">
+      <!-- <span>Next Page</span> -->
+    </button>
+
+    <button id="last-page" class="blue-button button-with-image">
+      <img src="assets/img/rightforward.png" alt="Button Image">
+      <!-- <span>Last Page</span> -->
+    </button>
+
+  </div>
+
+  <!-- <div class="center2">
+    <button id="export-csv">Export to CSV</button>
+  </div> -->
+</div>
+
+  <script>
+          window.addEventListener('load', function() {
+        // Simulating a delay of 3 seconds
+        setTimeout(function() {
+          var loader = document.querySelector('.loader');
+          var content = document.getElementById('content');
+          
+          // Hide the loader
+          loader.style.display = 'none';
+          
+          // Show the content
+          content.style.display = 'block';
+        }, 250);
+      });
+
+  </script>
+
+  
+
+</body>
+</html>

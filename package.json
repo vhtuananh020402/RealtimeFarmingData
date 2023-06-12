@@ -1,0 +1,27 @@
+{
+  "name": "realtimefarmingdata",
+  "version": "1.0.0",
+  "description": "",
+  "main": "AllSensorsActivation.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vhtuananh020402/RealtimeFarmingData.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vhtuananh020402/RealtimeFarmingData/issues"
+  },
+  "homepage": "https://github.com/vhtuananh020402/RealtimeFarmingData#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "moment-timezone": "^0.5.43",
+    "mqtt": "^4.3.7",
+    "pg": "^8.11.0",
+    "ws": "^8.13.0"
+  }
+}
