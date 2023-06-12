@@ -2,6 +2,7 @@
 
 ## Requirement
 - Nodejs
+- PostgresSQL
 
 ## Run the project
 ### 1. Edit your Postgres database login information in the file **_postgresDBinfo.json_**
@@ -34,3 +35,5 @@
     ```bash
     node Server.js
     ```
+
+Note that the client user dashboard will automatically live update the data every 3 seconds, you don't need to refresh the page. 
